@@ -81,6 +81,35 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>
+            <version>5.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.demo</groupId>
+            <artifactId>api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.demo</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 

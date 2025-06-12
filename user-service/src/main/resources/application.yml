@@ -1,0 +1,53 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: permission-service
+  datasource:
+    url: "jdbc:mysql://127.0.0.1:3306/de-demo-user?useSSL=false"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+  # shardingsphere配置由chatgpt生成
+  shardingsphere:
+    datasource:
+      names: ds
+      ds:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3306/de-demo-user
+        username: root
+        password: root
+
+    rules:
+      sharding:
+        tables:
+          users:
+            actual-data-nodes: ds.users_$->{0..2}   # 表名是 users_0, users_1, users_2
+            table-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: table-mod
+            key-generate-strategy:
+              column: user_id
+              key-generator-name: snowflake
+
+        sharding-algorithms:
+          table-mod:
+            type: MOD
+            props:
+              sharding-count: 3  # users_0, users_1, users_2
+
+        key-generators:
+          snowflake:
+            type: SNOWFLAKE
+            props:
+              worker-id: 1  # 每个节点唯一
+
+    props:
+      sql-show: true  # 控制台打印 SQL
