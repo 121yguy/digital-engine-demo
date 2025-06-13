@@ -1,5 +1,9 @@
 package org.demo.permission.service;
 
+import org.springframework.web.bind.annotation.RequestHeader;
+
+import java.util.List;
+
 public interface PermissionService {
     // 绑定默认角色（普通用户）
     void bindDefaultRole(Long userId);
@@ -12,4 +16,8 @@ public interface PermissionService {
 
     // 超管调用：降级用户为普通角色
     void downgradeToUser(Long userId);
+
+    List<Long> getUserIds(Long startUserId, Long roleId);
+
+    Long getRoleId(Long userId);
 }

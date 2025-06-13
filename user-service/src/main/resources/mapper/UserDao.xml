@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.demo.user.dao.UserDao">
+    <select id="getUsers" resultType="org.demo.common.domain.po.User">
+        SELECT user_id, username, email, phone, gmt_create
+        FROM users
+        WHERE user_id
+        IN
+        <foreach collection="userIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

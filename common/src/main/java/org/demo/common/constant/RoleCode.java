@@ -1,6 +1,6 @@
 package org.demo.common.constant;
 
-public class RoleConstants {
+public class RoleCode {
 
     public static final Long SUPER_ADMIN = 1L;
     public static final Long USER = 2L;

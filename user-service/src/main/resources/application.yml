@@ -4,7 +4,7 @@ spring:
   application:
     name: permission-service
   datasource:
-    url: "jdbc:mysql://127.0.0.1:3306/de-demo-user?useSSL=false"
+    url: "jdbc:mysql://127.0.0.1:3306/de_demo_user?useSSL=false"
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: root
@@ -20,7 +20,7 @@ spring:
       ds:
         type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://localhost:3306/de-demo-user
+        jdbc-url: jdbc:mysql://localhost:3306/de_demo_user
         username: root
         password: root
 
@@ -28,26 +28,31 @@ spring:
       sharding:
         tables:
           users:
-            actual-data-nodes: ds.users_$->{0..2}   # 表名是 users_0, users_1, users_2
+            actual-data-nodes: ds.users_$->{0..2}
             table-strategy:
               standard:
                 sharding-column: user_id
-                sharding-algorithm-name: table-mod
+                sharding-algorithm-name: user-id-hash-mod
             key-generate-strategy:
               column: user_id
               key-generator-name: snowflake
 
         sharding-algorithms:
-          table-mod:
-            type: MOD
+          user-id-hash-mod:
+            type: HASH_MOD
             props:
-              sharding-count: 3  # users_0, users_1, users_2
+              sharding-count: 3
 
         key-generators:
           snowflake:
             type: SNOWFLAKE
             props:
-              worker-id: 1  # 每个节点唯一
+              worker-id: 1  # 不同节点设置不同
 
     props:
-      sql-show: true  # 控制台打印 SQL
+      sql-show: false
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:/mapper/**/*.xml
