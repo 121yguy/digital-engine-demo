@@ -14,6 +14,9 @@ public interface UserDao {
     @Select("SELECT user_id, username, email, phone, gmt_create FROM users WHERE user_id = #{userId}")
     User getUser(@Param("userId") Long userId);
 
+    @Select("SELECT user_id, username, password FROM users WHERE username = #{username}")
+    User getUser(@Param("username") String username);
+
     List<User> getUsers(@Param("userIds") List<Long> userIds);
 
     @Insert("INSERT INTO users(username, password, email, phone, gmt_create) VALUES (#{username}, #{password}, #{email}, #{phone}, #{gmtCreate})")

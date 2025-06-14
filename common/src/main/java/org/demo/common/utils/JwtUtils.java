@@ -14,9 +14,9 @@ import java.util.Map;
 
 public class JwtUtils {
 
-    public static String createJwt(Integer uid, String secret, long exp) {
+    public static String createJwt(Long uid, String secret, long exp) {
         Map<String,Object> claim = new HashMap<>();
-        claim.put("userId",uid);
+        claim.put("userId", uid);
         return JWT.create()
                 .withClaim("user", claim)
                 .withIssuedAt(new Date(System.currentTimeMillis()))
