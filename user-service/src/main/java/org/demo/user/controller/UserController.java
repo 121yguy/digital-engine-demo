@@ -1,5 +1,6 @@
 package org.demo.user.controller;
 
+import cn.hutool.extra.servlet.ServletUtil;
 import lombok.AllArgsConstructor;
 import org.demo.common.domain.dto.ResetPasswordDTO;
 import org.demo.common.domain.po.User;
@@ -8,6 +9,7 @@ import org.demo.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -17,8 +19,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/user/register")
-    public Result<Boolean> register(User user) {
-        return Result.success(userService.register(user));
+    public Result<Boolean> register(User user, HttpServletRequest request) {
+        return Result.success(userService.register(user, ServletUtil.getClientIP(request)));
     }
 
     @PostMapping("/user/login")

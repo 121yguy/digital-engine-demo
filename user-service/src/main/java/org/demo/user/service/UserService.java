@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserService {
 
-    boolean register(User user);
+    boolean register(User user, String ip);
 
     String login(User user);
 

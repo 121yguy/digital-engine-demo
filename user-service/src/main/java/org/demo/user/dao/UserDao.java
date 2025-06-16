@@ -15,11 +15,12 @@ public interface UserDao {
     User getUser(@Param("userId") Long userId);
 
     @Select("SELECT user_id, username, password FROM users WHERE username = #{username}")
-    User getUser(@Param("username") String username);
+    User getUserByUsername(@Param("username") String username);
 
     List<User> getUsers(@Param("userIds") List<Long> userIds);
 
     @Insert("INSERT INTO users(username, password, email, phone, gmt_create) VALUES (#{username}, #{password}, #{email}, #{phone}, #{gmtCreate})")
+    @Options(useGeneratedKeys = true, keyProperty = "userId")
     void insertUser(User user);
 
     @Update("UPDATE users SET email = #{user.email}, phone = #{user.phone} WHERE user_id = #{userId}")

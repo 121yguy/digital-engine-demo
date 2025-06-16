@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  org.demo.common.config.RabbitConfig
+  org.demo.common.config.RabbitConfig,\
+  org.demo.common.config.RedisConfig

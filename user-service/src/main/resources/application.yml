@@ -1,19 +1,25 @@
 server:
   port: 8081
+
 spring:
   application:
-    name: permission-service
+    name: user-service
   datasource:
     url: "jdbc:mysql://127.0.0.1:3306/de_demo_user?useSSL=false"
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: root
+  redis:
+    host: localhost
+    port: 6379
+    password: root
+    database: 5
   cloud:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
 
-  # shardingsphere配置由chatgpt生成
+  # shardingsphere配置部分由chatgpt生成
   shardingsphere:
     datasource:
       names: ds
@@ -50,9 +56,39 @@ spring:
               worker-id: 1  # 不同节点设置不同
 
     props:
+      proxy-transaction-type: SEATA
+      transaction.seata.enabled: true
+      proxy.transaction.enabled: true
+      transaction_type: AT
       sql-show: false
 
+seata:
+  enabled: true
+  enable-auto-data-source-proxy: false
+  data-source-proxy-mode: AT
+  registry:
+    type: nacos
+    nacos:
+      server-addr: localhost:8848
+      group: DEFAULT_GROUP
+      namespace: ""
+      username: nacos
+      password: nacos
+      application: seata-server
+  tx-service-group: de-demo
+  service:
+    vgroup-mapping:
+      de-demo: "default"
+
 mybatis:
+  mapper-locations: classpath*:/mapper/**/*.xml
   configuration:
     map-underscore-to-camel-case: true
-  mapper-locations: classpath*:/mapper/**/*.xml
+
+jwt:
+  secret: 121yguy
+  exp: 604800
+
+secret-keys:
+  email-secret-key: 1234567890qwerty
+  phone-secret-key: 67012938745

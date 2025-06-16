@@ -6,4 +6,6 @@ public class RoleCode {
     public static final Long USER = 2L;
     public static final Long ADMIN = 3L;
 
+    private RoleCode() {}
+
 }
