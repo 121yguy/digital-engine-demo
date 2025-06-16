@@ -18,9 +18,13 @@ spring:
     gateway:
       routes:
         - id: user-service
-          uri: lb://comments-service
+          uri: lb://user-service
           predicates:
-            - Path=/comments/**
+            - Path=/user/**,/users/**
+        - id: permission-service
+          uri: lb://permission-service
+          predicates:
+            - Path=/permission/**
 
 
 jwt:

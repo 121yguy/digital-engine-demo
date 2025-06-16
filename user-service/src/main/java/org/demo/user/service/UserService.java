@@ -1,15 +1,18 @@
 package org.demo.user.service;
 
+import org.demo.common.domain.dto.LoginDTO;
+import org.demo.common.domain.dto.RegisterDTO;
 import org.demo.common.domain.dto.ResetPasswordDTO;
-import org.demo.common.domain.po.User;
+import org.demo.common.domain.dto.UserInfoDTO;
+import org.demo.common.domain.vo.UserVO;
 
 import java.util.List;
 
 public interface UserService {
 
-    boolean register(User user, String ip);
+    boolean register(RegisterDTO registerDTO, String ip);
 
-    String login(User user);
+    String login(LoginDTO loginDTO);
 
     /**
      *
@@ -17,7 +20,7 @@ public interface UserService {
      *
      *
      **/
-    List<User> getUsers(Long startUserId, Long roleId, Long userId);
+    List<UserVO> getUsers(Long startUserId, Long roleId, Long userId);
 
     /**
      *
@@ -25,7 +28,7 @@ public interface UserService {
      * @param uid 查询者的userId
      *
      **/
-    User getUser(Long userId, Long uid, Long roleId);
+    UserVO getUserInfo(Long userId, Long uid, Long roleId);
 
     /**
      *
@@ -33,7 +36,7 @@ public interface UserService {
      * @param uid 修改者的userId
      *
      **/
-    boolean updateUser(Long userId, Long uid, Long roleId, User user);
+    boolean updateUser(Long userId, Long uid, Long roleId, UserInfoDTO userInfoDTO);
 
     /**
      *

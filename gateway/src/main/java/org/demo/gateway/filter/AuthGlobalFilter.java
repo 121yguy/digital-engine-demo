@@ -71,7 +71,11 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         Map<String, Claim> claimMap = JwtUtils.parseJwt(accessToken, jwtProperties.getSecret());
         Long uid = (Long) claimMap.get("user").asMap().get("userId");
 
-        Long roleId = (Long) redisTemplate.opsForValue().get(uid);
+        String val = (String) redisTemplate.opsForValue().get(String.valueOf(uid));
+        if (Objects.isNull(val)) {
+            throw new RuntimeException();
+        }
+        Long roleId = Long.valueOf(val);
 
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                 .header("X-User-ID", String.valueOf(uid))

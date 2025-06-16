@@ -1,4 +1,4 @@
-package org.demo.user.exceptions;
+package org.demo.user.exception;
 
 public class PasswordFormatException extends RuntimeException {
 

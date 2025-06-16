@@ -1,7 +1,5 @@
 package org.demo.permission.service;
 
-import org.springframework.web.bind.annotation.RequestHeader;
-
 import java.util.List;
 
 public interface PermissionService {
@@ -20,4 +18,6 @@ public interface PermissionService {
     List<Long> getUserIds(Long startUserId, Long roleId);
 
     Long getRoleId(Long userId);
+
+    void bingSuperAdmin(Long userId);
 }

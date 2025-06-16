@@ -90,9 +90,9 @@ public class EncryptUtil {
     private static String encodeBase62(BigInteger value) {
         StringBuilder sb = new StringBuilder();
         while (value.compareTo(BigInteger.ZERO) > 0) {
-            BigInteger[] divmod = value.divideAndRemainder(BigInteger.valueOf(BASE));
-            sb.append(BASE62_CHARS.charAt(divmod[1].intValue()));
-            value = divmod[0];
+            BigInteger[] divMod = value.divideAndRemainder(BigInteger.valueOf(BASE));
+            sb.append(BASE62_CHARS.charAt(divMod[1].intValue()));
+            value = divMod[0];
         }
         return sb.reverse().toString();
     }

@@ -1,12 +1,10 @@
 package org.demo.permission.controller;
 
 import lombok.AllArgsConstructor;
-import org.demo.common.domain.vo.Result;
 import org.demo.permission.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -16,9 +14,14 @@ public class InternalPermissionController {
 
     private PermissionService permissionService;
 
-    @PostMapping("/default-bing/{userId}")
-    public void bingDefaultRole(@PathVariable Long userId) {
+    @PostMapping("/default-bind/{userId}")
+    public void bindDefaultRole(@PathVariable Long userId) {
         permissionService.bindDefaultRole(userId);
+    }
+
+    @PostMapping("/super-admin-bind/{userId}")
+    void bindSuperAdmin(@PathVariable("userId") Long userId) {
+        permissionService.bingSuperAdmin(userId);
     }
 
     @GetMapping("/get-user-ids")

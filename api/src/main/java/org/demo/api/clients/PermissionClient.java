@@ -8,8 +8,11 @@ import java.util.List;
 @FeignClient(name = "permission-service", path = "/internal/permissions")
 public interface PermissionClient {
 
-    @PostMapping("/default-bing/{userId}")
+    @PostMapping("/default-bind/{userId}")
     void bindDefaultRole(@PathVariable("userId") Long userId);
+
+    @PostMapping("/super-admin-bind/{userId}")
+    void bindSuperAdmin(@PathVariable("userId") Long userId);
 
     @GetMapping("/get-user-ids")
     List<Long> getUserIds(@RequestParam("role-id") Long roleId,

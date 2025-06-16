@@ -55,4 +55,9 @@ public class PermissionServiceImpl implements PermissionService {
     public Long getRoleId(Long userId) {
         return permissionDao.getRoleIdByUserId(userId);
     }
+
+    @Override
+    public void bingSuperAdmin(Long userId) {
+        permissionDao.insertUserRole(userId, RoleCode.SUPER_ADMIN);
+    }
 }

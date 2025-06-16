@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 @Getter
 public enum OperationLogDetailEnum {
 
-    REGISTER("Register at " + getTime() + " BJT."), RESET_PASSWORD("Reset password at " + getTime() + " BJT.");
+    REGISTER("Register at " + getTime() + " GMT."), RESET_PASSWORD("Reset password at " + getTime() + " GMT.");
 
     final String detail;
 
@@ -22,7 +22,7 @@ public enum OperationLogDetailEnum {
         LocalDateTime localNow = LocalDateTime.now();
 
         ZonedDateTime beijingTime = localNow.atZone(ZoneId.systemDefault())
-                .withZoneSameInstant(ZoneId.of("Asia/Shanghai"));
+                .withZoneSameInstant(ZoneId.of("GMT"));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
