@@ -1,6 +1,5 @@
 package org.demo.user.service.impl;
 
-import io.seata.spring.annotation.GlobalTransactional;
 import lombok.AllArgsConstructor;
 import org.apache.shardingsphere.transaction.annotation.ShardingSphereTransactionType;
 import org.apache.shardingsphere.transaction.core.TransactionType;
@@ -28,13 +27,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-public class UserServiceImpl implements UserService { //todo 邮箱和电话的加解密
+public class UserServiceImpl implements UserService {
 
     private UserDao userDao;
     private PermissionClient permissionClient;
@@ -44,8 +44,6 @@ public class UserServiceImpl implements UserService { //todo 邮箱和电话的�
     private SecretKeysProperties secretKeysProperties;
 
     @Override
-//    @GlobalTransactional(rollbackFor = Exception.class)
-//    @Transactional(rollbackFor = Exception.class)
     @Transactional(rollbackFor = Exception.class)
     @ShardingSphereTransactionType(TransactionType.BASE)
     public boolean register(User user, String ip) {
@@ -55,8 +53,6 @@ public class UserServiceImpl implements UserService { //todo 邮箱和电话的�
 
         String username = user.getUsername();
         String password = user.getPassword();
-        String email = user.getEmail();
-        String phone = user.getPhone();
 
         if (isInvalidUsername(username) || isInvalidPassword(password)) {
             throw new UsernameOrPasswordFormatException();
@@ -67,9 +63,8 @@ public class UserServiceImpl implements UserService { //todo 邮箱和电话的�
         }
 
         user.setPassword(BcryptUtil.encode(user.getPassword()));
-        user.setEmail(EncryptUtil.encryptEmail(email, secretKeysProperties.getEmailSecretKey()));
-        user.setPhone(EncryptUtil.encryptPhone(phone, secretKeysProperties.getPhoneSecretKey()));
-        user.setGmtCreate(LocalDateTime.now());
+        EncryptUtil.encryptUserInfo(user, secretKeysProperties.getEmailSecretKey(), secretKeysProperties.getPhoneSecretKey());
+        user.setGmtCreate(LocalDateTime.now(ZoneId.of("Asia/Shanghai")));
 
         // 分库分表写入用户表
         userDao.insertUser(user);
@@ -77,6 +72,7 @@ public class UserServiceImpl implements UserService { //todo 邮箱和电话的�
         // RPC调用绑定默认角色
         permissionClient.bindDefaultRole(user.getUserId());
 
+        // 事务回滚测试
 //        if (1 == 1) throw new RuntimeException();
 
         // 发送日志消息至MQ
@@ -123,6 +119,7 @@ public class UserServiceImpl implements UserService { //todo 邮箱和电话的�
         // 普通用户，返回自己
         if (Objects.equals(roleId, RoleCode.USER)) {
             User user = userDao.getUser(userId);
+            EncryptUtil.decryptUserInfo(user, secretKeysProperties.getEmailSecretKey(), secretKeysProperties.getPhoneSecretKey());
             return Collections.singletonList(user);
         }
 
@@ -133,7 +130,9 @@ public class UserServiceImpl implements UserService { //todo 邮箱和电话的�
             if (ids.isEmpty()) {
                 return Collections.emptyList();
             }
-            return userDao.getUsers(ids);
+            List<User> users = userDao.getUsers(ids);
+            EncryptUtil.decryptUserInfo(users, secretKeysProperties.getEmailSecretKey(), secretKeysProperties.getPhoneSecretKey());
+            return users;
         }
 
         throw new IllegalRoleException();
@@ -147,7 +146,9 @@ public class UserServiceImpl implements UserService { //todo 邮箱和电话的�
                 throw new IllegalOperationException();
             }
 
-            return userDao.getUser(uid);
+            User user = userDao.getUser(uid);
+            EncryptUtil.decryptUserInfo(user, secretKeysProperties.getEmailSecretKey(), secretKeysProperties.getPhoneSecretKey());
+            return user;
         }
 
         // 管理员，只能返回普通用户
@@ -160,6 +161,7 @@ public class UserServiceImpl implements UserService { //todo 邮箱和电话的�
             if (Objects.isNull(user)) {
                 throw new UserNotFoundException();
             }
+            EncryptUtil.decryptUserInfo(user, secretKeysProperties.getEmailSecretKey(), secretKeysProperties.getPhoneSecretKey());
             return user;
         }
 
@@ -169,6 +171,7 @@ public class UserServiceImpl implements UserService { //todo 邮箱和电话的�
             if (Objects.isNull(user)) {
                 throw new UserNotFoundException();
             }
+            EncryptUtil.decryptUserInfo(user, secretKeysProperties.getEmailSecretKey(), secretKeysProperties.getPhoneSecretKey());
             return user;
         }
 
@@ -181,6 +184,8 @@ public class UserServiceImpl implements UserService { //todo 邮箱和电话的�
         if (Objects.isNull(user)) {
             throw new IllegalDataException();
         }
+
+        EncryptUtil.encryptUserInfo(user, secretKeysProperties.getEmailSecretKey(), secretKeysProperties.getPhoneSecretKey());
 
         // 普通用户，只能修改自己的个人信息
         if (Objects.equals(roleId, RoleCode.USER)) {

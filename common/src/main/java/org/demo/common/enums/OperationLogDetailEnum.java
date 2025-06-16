@@ -1,22 +1,21 @@
 package org.demo.common.enums;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Getter
 public enum OperationLogDetailEnum {
 
-    REGISTER("Register at " + getTime() + " CST."), RESET_PASSWORD("Reset password at " + getTime() + " CST.");
+    REGISTER("Register at " + getTime() + " BJT."), RESET_PASSWORD("Reset password at " + getTime() + " BJT.");
 
     final String detail;
 
     OperationLogDetailEnum(String detail) {
         this.detail = detail;
-    }
-
-    public String getDetail() {
-        return detail;
     }
 
     private static String getTime() {

@@ -1,11 +1,14 @@
 package org.demo.common.utils;
 
+import org.demo.common.domain.po.User;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.util.Base64;
+import java.util.Collection;
 
-// 该工具类由chatgpt生成
+// 该工具类部分由chatgpt生成
 public class EncryptUtil {
 
     private static final String BASE62_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -62,6 +65,26 @@ public class EncryptUtil {
         BigInteger decoded = decodeBase62(encrypted);
         long original = decoded.longValue() ^ secret;
         return String.format("%011d", original);
+    }
+
+    public static void encryptUserInfo(User user, String emailKey, long phoneKey) {
+        String email = user.getEmail();
+        String phone = user.getPhone();
+        user.setEmail(encryptEmail(email, emailKey));
+        user.setPhone(encryptPhone(phone, phoneKey));
+    }
+
+    public static void decryptUserInfo(User user, String emailKey, long phoneKey) {
+        String email = user.getEmail();
+        String phone = user.getPhone();
+        user.setEmail(decryptEmail(email, emailKey));
+        user.setPhone(decryptPhone(phone, phoneKey));
+    }
+
+    public static void decryptUserInfo(Collection<User> collection, String emailKey, long phoneKey) {
+        for (User user : collection) {
+            decryptUserInfo(user, emailKey, phoneKey);
+        }
     }
 
     private static String encodeBase62(BigInteger value) {
