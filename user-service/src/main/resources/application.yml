@@ -80,6 +80,10 @@ seata:
     vgroup-mapping:
       de-demo: "default"
 
+logging:
+  file:
+    path: D:/javaprojects/digital-engine-demo/user-service/logs/
+
 mybatis:
   mapper-locations: classpath*:/mapper/**/*.xml
   configuration:

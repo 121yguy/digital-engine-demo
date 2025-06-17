@@ -26,6 +26,9 @@ spring:
           predicates:
             - Path=/permissions/**
 
+logging:
+  file:
+    path: D:/javaprojects/digital-engine-demo/gateway/logs/
 
 jwt:
   secret: 121yguy

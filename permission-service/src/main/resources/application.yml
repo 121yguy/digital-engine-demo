@@ -28,5 +28,9 @@ seata:
     vgroup-mapping:
       de-demo: "default"
 
+logging:
+  file:
+    path: D:/javaprojects/digital-engine-demo/permission-service/logs/
+
 mybatis:
   mapper-locations: classpath*:/mapper/**/*.xml

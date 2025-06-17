@@ -12,3 +12,7 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
+
+logging:
+  file:
+    path: D:/javaprojects/digital-engine-demo/logging-service/logs/
