@@ -24,7 +24,7 @@ spring:
         - id: permission-service
           uri: lb://permission-service
           predicates:
-            - Path=/permission/**
+            - Path=/permissions/**
 
 
 jwt:
@@ -36,6 +36,9 @@ secure:
     include-paths:
       - /users
       - /user/**
+      - /permissions/**
     exclude-paths:
       - /user/login
       - /user/register
+    super-admin-paths:
+      - /permissions/super-admin/**

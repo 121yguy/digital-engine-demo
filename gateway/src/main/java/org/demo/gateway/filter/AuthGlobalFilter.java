@@ -2,6 +2,7 @@ package org.demo.gateway.filter;
 
 import com.auth0.jwt.interfaces.Claim;
 import lombok.AllArgsConstructor;
+import org.demo.common.constant.RoleCode;
 import org.demo.common.utils.JwtUtils;
 import org.demo.gateway.config.AuthProperties;
 import org.demo.gateway.config.JwtProperties;
@@ -37,6 +38,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
         List<String> includePaths = authProperties.getIncludePaths();
         List<String> excludePaths = authProperties.getExcludePaths();
+        List<String> superAdminPaths = authProperties.getSuperAdminPaths();
 
         boolean inExclude = excludePaths.stream().anyMatch(p -> pathMatcher().match(p, path));
         if (inExclude) {
@@ -46,7 +48,6 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         boolean inInclude = includePaths.stream().anyMatch(p -> pathMatcher().match(p, path));
 
         String accessToken = exchange.getRequest().getHeaders().getFirst("Authorization");
-
 
         if (!inInclude) {
             if (Objects.isNull(accessToken)) {
@@ -60,7 +61,29 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         }
 
         try {
-            return parseJwtAndAddHeader(exchange, chain, accessToken);
+
+            Map<String, Claim> claimMap = JwtUtils.parseJwt(accessToken, jwtProperties.getSecret());
+            Long uid = (Long) claimMap.get("user").asMap().get("userId");
+
+            String val = (String) redisTemplate.opsForValue().get(String.valueOf(uid));
+            if (Objects.isNull(val)) {
+                throw new RuntimeException();
+            }
+            Long roleId = Long.valueOf(val);
+
+            boolean needSuperAdmin = superAdminPaths.stream().anyMatch(p -> pathMatcher().match(p, path));
+
+            if (needSuperAdmin && !RoleCode.SUPER_ADMIN.equals(roleId)) {
+                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                return exchange.getResponse().setComplete();
+            }
+
+            ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                    .header("X-User-ID", String.valueOf(uid))
+                    .header("X-Role-ID", String.valueOf(roleId))
+                    .build();
+
+            return chain.filter(exchange.mutate().request(mutatedRequest).build());
         } catch (RuntimeException e) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();

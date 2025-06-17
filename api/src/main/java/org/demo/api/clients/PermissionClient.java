@@ -8,6 +8,9 @@ import java.util.List;
 @FeignClient(name = "permission-service", path = "/internal/permissions")
 public interface PermissionClient {
 
+    @GetMapping("/get-role-code/{userId}")
+    String getRoleCode(@PathVariable("userId") Long userId);
+
     @PostMapping("/default-bind/{userId}")
     void bindDefaultRole(@PathVariable("userId") Long userId);
 

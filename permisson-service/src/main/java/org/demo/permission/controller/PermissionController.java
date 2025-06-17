@@ -13,19 +13,15 @@ public class PermissionController {
 
     private PermissionService permissionService;
 
-    @GetMapping("/get-role-code/{userId}")
-    public Result<String> getRoleCode(@PathVariable Long userId) {
-        return Result.success(permissionService.getUserRoleCode(userId));
-    }
 
-    @PutMapping("/admin/upgrade-to-admin")
-    public Result<Boolean> upgradeToAdmin(@RequestParam("userId") Long userId) {
+    @PutMapping("/super-admin/upgrade-to-admin")
+    public Result<Boolean> upgradeToAdmin(@RequestParam("user-id") Long userId) {
         permissionService.upgradeToAdmin(userId);
         return Result.success(true);
     }
 
-    @PutMapping("/admin/downgrade-to-user")
-    public Result<Boolean> downgradeToUser(@RequestParam("userId") Long userId) {
+    @PutMapping("/super-admin/downgrade-to-user")
+    public Result<Boolean> downgradeToUser(@RequestParam("user-id") Long userId) {
         permissionService.downgradeToUser(userId);
         return Result.success(true);
     }

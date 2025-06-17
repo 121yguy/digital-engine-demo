@@ -14,8 +14,13 @@ public class InternalPermissionController {
 
     private PermissionService permissionService;
 
+    @GetMapping("/get-role-code/{userId}")
+    public String getRoleCode(@PathVariable("userId") Long userId) {
+        return permissionService.getUserRoleCode(userId);
+    }
+
     @PostMapping("/default-bind/{userId}")
-    public void bindDefaultRole(@PathVariable Long userId) {
+    public void bindDefaultRole(@PathVariable("userId") Long userId) {
         permissionService.bindDefaultRole(userId);
     }
 
