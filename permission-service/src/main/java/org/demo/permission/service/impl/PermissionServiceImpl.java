@@ -1,6 +1,7 @@
 package org.demo.permission.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.demo.common.constant.RoleCode;
 import org.demo.permission.dao.PermissionDao;
 import org.demo.permission.service.PermissionService;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class PermissionServiceImpl implements PermissionService {
@@ -19,6 +21,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public void bindDefaultRole(Long userId) {
         permissionDao.insertUserRole(userId, RoleCode.USER);
+        log.info("用户{}被绑定为普通用户", userId);
     }
 
     @Override
@@ -29,11 +32,13 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public void upgradeToAdmin(Long userId) {
         permissionDao.updateUserRole(userId, RoleCode.ADMIN);
+        log.info("用户{}被授予管理员权限", userId);
     }
 
     @Override
     public void downgradeToUser(Long userId) {
         permissionDao.updateUserRole(userId, RoleCode.USER);
+        log.info("用户{}管理员权限被撤销", userId);
     }
 
     @Override

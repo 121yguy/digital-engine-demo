@@ -1,6 +1,7 @@
 package org.demo.user.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.transaction.annotation.ShardingSphereTransactionType;
 import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.demo.api.clients.PermissionClient;
@@ -39,6 +40,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class UserServiceImpl implements UserService {
@@ -53,7 +55,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     @ShardingSphereTransactionType(TransactionType.BASE)
-    public boolean register(RegisterDTO registerDTO, String ip) {
+    public void register(RegisterDTO registerDTO, String ip) {
         if (Objects.isNull(registerDTO)) {
             throw new IllegalDataException();
         }
@@ -91,15 +93,16 @@ public class UserServiceImpl implements UserService {
 //        if (1 == 1) throw new RuntimeException();
 
         // 发送日志消息至MQ
-        OperationLog log = OperationLogUtil.builder()
+        OperationLog operationLog = OperationLogUtil.builder()
                 .userId(user.getUserId())
                 .ip(ip)
                 .action(OperationLogActions.REGISTER)
                 .detail(OperationLogDetailEnum.REGISTER.getDetail())
                 .build();
-        rabbitTemplate.convertAndSend(RabbitConstants.REGISTER_EXCHANGE, "", log);
+        rabbitTemplate.convertAndSend(RabbitConstants.REGISTER_EXCHANGE, "", operationLog);
 
-        return true;
+        log.info("用户注册成功，用户id: {}", user.getUserId());
+
     }
 
     @Override
@@ -198,7 +201,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updateUser(Long userId, Long uid, Long roleId, UserInfoDTO userInfoDTO) {
+    public void updateUser(Long userId, Long uid, Long roleId, UserInfoDTO userInfoDTO) {
         if (Objects.isNull(userInfoDTO)) {
             throw new IllegalDataException();
         }
@@ -216,7 +219,9 @@ public class UserServiceImpl implements UserService {
             if (!Objects.equals(userId, uid)) {
                 throw new IllegalOperationException();
             }
-            return userDao.updateUser(user, userId);
+            userDao.updateUser(user, userId);
+            log.info("用户{}个人信息被修改，操作人: {}", userId, uid);
+            return;
         }
 
         // 管理员，只能修改普通用户和自己的信息
@@ -225,20 +230,23 @@ public class UserServiceImpl implements UserService {
                     !Objects.equals(permissionClient.getRoleByUserId(userId), RoleCode.USER) ) {
                 throw new IllegalOperationException();
             }
-
-            return userDao.updateUser(user, userId);
+            userDao.updateUser(user, userId);
+            log.info("用户{}个人信息被修改，操作人: {}", userId, uid);
+            return;
         }
 
         // 超级管理员，能修改所有人的信息
         if (Objects.equals(roleId, RoleCode.SUPER_ADMIN)) {
-            return userDao.updateUser(user, userId);
+            userDao.updateUser(user, userId);
+            log.info("用户{}个人信息被修改，操作人: {}", userId, uid);
+            return;
         }
 
         throw new IllegalRoleException();
     }
 
     @Override
-    public boolean resetPassword(ResetPasswordDTO resetPasswordDTO, Long userId, Long roleId) {
+    public void resetPassword(ResetPasswordDTO resetPasswordDTO, Long userId, Long roleId) {
         if (Objects.isNull(resetPasswordDTO)) {
             throw new IllegalDataException();
         }
@@ -256,16 +264,18 @@ public class UserServiceImpl implements UserService {
             }
 
             String newPsw = BcryptUtil.encode(resetPasswordDTO.getNewPsw());
-            return userDao.updatePassword(newPsw, userId);
+            userDao.updatePassword(newPsw, userId);
+            log.info("用户{}密码修改成功", userId);
+            return;
         }
 
         // 普通用户，只能修改自己的密码
-        if (Objects.equals(roleId, RoleCode.USER)) {
+        if (RoleCode.USER.equals(roleId)) {
             throw new IllegalOperationException();
         }
 
         // 管理员，只能修改普通用户的密码
-        if (Objects.equals(roleId, RoleCode.ADMIN)) {
+        if (RoleCode.ADMIN.equals(roleId)) {
             Long resetUid = resetPasswordDTO.getUserId();
 
             if (!Objects.equals(permissionClient.getRoleByUserId(resetUid), RoleCode.USER)) {
@@ -273,13 +283,17 @@ public class UserServiceImpl implements UserService {
             }
 
             String newPsw = BcryptUtil.encode(resetPasswordDTO.getNewPsw());
-            return userDao.updatePassword(newPsw, resetUid);
+            userDao.updatePassword(newPsw, resetUid);
+            log.info("用户{}密码被修改，操作人: {}", resetPasswordDTO.getUserId(), userId);
+            return;
         }
 
         // 超级管理员，可以修改所有用户的密码
-        if (Objects.equals(roleId, RoleCode.SUPER_ADMIN)) {
+        if (RoleCode.SUPER_ADMIN.equals(roleId)) {
             String newPsw = BcryptUtil.encode(resetPasswordDTO.getNewPsw());
-            return userDao.updatePassword(newPsw, resetPasswordDTO.getUserId());
+            userDao.updatePassword(newPsw, resetPasswordDTO.getUserId());
+            log.info("用户{}密码被修改，操作人: {}", resetPasswordDTO.getUserId(), userId);
+            return;
         }
 
         throw new IllegalRoleException();

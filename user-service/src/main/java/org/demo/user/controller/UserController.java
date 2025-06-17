@@ -23,7 +23,8 @@ public class UserController {
 
     @PostMapping("/user/register")
     public Result<Boolean> register(@RequestBody RegisterDTO registerDTO, HttpServletRequest request) {
-        return Result.success(userService.register(registerDTO, ServletUtil.getClientIP(request)));
+        userService.register(registerDTO, ServletUtil.getClientIP(request));
+        return Result.success(true);
     }
 
     @PostMapping("/user/login")
@@ -35,7 +36,8 @@ public class UserController {
     public Result<Boolean> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO,
                                          @RequestHeader("X-User-ID") Long userId,
                                          @RequestHeader("X-Role-ID") Long roleId) {
-        return Result.success(userService.resetPassword(resetPasswordDTO, userId, roleId));
+        userService.resetPassword(resetPasswordDTO, userId, roleId);
+        return Result.success(true);
     }
 
     @GetMapping("/users")
@@ -57,7 +59,8 @@ public class UserController {
                                       @RequestHeader("X-User-ID") Long uid,
                                       @RequestHeader("X-Role-ID") Long roleId,
                                       @RequestBody UserInfoDTO userInfoDTO) {
-        return Result.success(userService.updateUser(userId, uid, roleId, userInfoDTO));
+        userService.updateUser(userId, uid, roleId, userInfoDTO);
+        return Result.success(true);
     }
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface UserService {
 
-    boolean register(RegisterDTO registerDTO, String ip);
+    void register(RegisterDTO registerDTO, String ip);
 
     String login(LoginDTO loginDTO);
 
@@ -36,7 +36,7 @@ public interface UserService {
      * @param uid 修改者的userId
      *
      **/
-    boolean updateUser(Long userId, Long uid, Long roleId, UserInfoDTO userInfoDTO);
+    void updateUser(Long userId, Long uid, Long roleId, UserInfoDTO userInfoDTO);
 
     /**
      *
@@ -44,5 +44,5 @@ public interface UserService {
      * @param userId 修改者的用户的userId
      *
      **/
-    boolean resetPassword(ResetPasswordDTO resetPasswordDTO, Long userId, Long roleId);
+    void resetPassword(ResetPasswordDTO resetPasswordDTO, Long userId, Long roleId);
 }

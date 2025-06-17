@@ -1,9 +1,11 @@
 package org.demo.user.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.demo.common.domain.vo.Result;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -54,6 +56,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public Result<Object> exception(Exception e) {
+        log.error("发生错误:{}", e.getMessage(), e);
         return Result.error(e.getMessage());
     }
 

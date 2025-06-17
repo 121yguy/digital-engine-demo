@@ -24,10 +24,10 @@ public interface UserDao {
     void insertUser(User user);
 
     @Update("UPDATE users SET email = #{user.email}, phone = #{user.phone} WHERE user_id = #{userId}")
-    boolean updateUser(@Param("user") User user, @Param("userId") Long userId);
+    void updateUser(@Param("user") User user, @Param("userId") Long userId);
 
     @Update("UPDATE users SET password = #{password} WHERE user_id = #{userId}")
-    boolean updatePassword(@Param("password") String password, @Param("userId") Long userId);
+    void updatePassword(@Param("password") String password, @Param("userId") Long userId);
 
 
 }
