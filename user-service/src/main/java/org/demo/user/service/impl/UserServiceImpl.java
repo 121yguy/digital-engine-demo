@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
         OperationLog log = OperationLogUtil.builder()
                 .userId(user.getUserId())
                 .ip(ip)
-                .action(OperationLogActions.ADD)
+                .action(OperationLogActions.REGISTER)
                 .detail(OperationLogDetailEnum.REGISTER.getDetail())
                 .build();
         rabbitTemplate.convertAndSend(RabbitConstants.REGISTER_EXCHANGE, "", log);
