@@ -22,6 +22,9 @@ spring:
     publisher-confirm-type: correlated
     publisher-returns: true
   cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8090
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
