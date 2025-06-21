@@ -22,7 +22,8 @@ public class LogConsumer {
     @RabbitListener(
             bindings = @QueueBinding(
                     value = @Queue(RabbitConstants.LOGGING_QUEUE),
-                    exchange = @Exchange(RabbitConstants.REGISTER_EXCHANGE)
+                    exchange = @Exchange(RabbitConstants.REGISTER_EXCHANGE),
+                    key = "register"
             )
     )
     @RabbitHandler(isDefault = true)

@@ -1,5 +1,7 @@
 package org.demo.user.service.impl;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.transaction.annotation.ShardingSphereTransactionType;
@@ -25,21 +27,26 @@ import org.demo.user.config.SecretKeysProperties;
 import org.demo.user.dao.UserDao;
 import org.demo.user.exception.*;
 import org.demo.user.service.UserService;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Tag(name = "用户相关接口")
 @Slf4j
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -90,7 +97,7 @@ public class UserServiceImpl implements UserService {
         permissionClient.bindDefaultRole(user.getUserId());
 
         // 事务回滚测试
-//        if (1 == 1) throw new RuntimeException();
+//        if (1 == 1) throw new RuntimeException("测试全局事务");
 
         // 发送日志消息至MQ
         OperationLog operationLog = OperationLogUtil.builder()
@@ -99,7 +106,23 @@ public class UserServiceImpl implements UserService {
                 .action(OperationLogActions.REGISTER)
                 .detail(OperationLogDetailEnum.REGISTER.getDetail())
                 .build();
-        rabbitTemplate.convertAndSend(RabbitConstants.REGISTER_EXCHANGE, "", operationLog);
+
+        CorrelationData cd = new CorrelationData(UUID.randomUUID().toString());
+        cd.getFuture().addCallback(new ListenableFutureCallback<CorrelationData.Confirm>() {
+            @Override
+            public void onFailure(@NotNull Throwable ex) {
+                log.error("Spring AMQP 异常", ex);
+            }
+
+            @Override
+            public void onSuccess(CorrelationData.Confirm result) {
+                if (!result.isAck()) {
+                    log.error("消息发生失败：{}", result.getReason());
+                }
+            }
+        });
+
+        rabbitTemplate.convertAndSend(RabbitConstants.REGISTER_EXCHANGE, "register", operationLog, cd);
 
         log.info("用户注册成功，用户id: {}", user.getUserId());
 
@@ -270,12 +293,12 @@ public class UserServiceImpl implements UserService {
         }
 
         // 普通用户，只能修改自己的密码
-        if (RoleCode.USER.equals(roleId)) {
+        if (Objects.equals(roleId, RoleCode.USER)) {
             throw new IllegalOperationException();
         }
 
         // 管理员，只能修改普通用户的密码
-        if (RoleCode.ADMIN.equals(roleId)) {
+        if (Objects.equals(roleId, RoleCode.ADMIN)) {
             Long resetUid = resetPasswordDTO.getUserId();
 
             if (!Objects.equals(permissionClient.getRoleByUserId(resetUid), RoleCode.USER)) {
@@ -289,7 +312,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 超级管理员，可以修改所有用户的密码
-        if (RoleCode.SUPER_ADMIN.equals(roleId)) {
+        if (Objects.equals(roleId, RoleCode.SUPER_ADMIN)) {
             String newPsw = BcryptUtil.encode(resetPasswordDTO.getNewPsw());
             userDao.updatePassword(newPsw, resetPasswordDTO.getUserId());
             log.info("用户{}密码被修改，操作人: {}", resetPasswordDTO.getUserId(), userId);
